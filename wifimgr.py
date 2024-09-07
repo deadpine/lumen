@@ -121,7 +121,42 @@ def handle_root(client):
   client.sendall("""\
     <html>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <style>
+          body {
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 30rem;
+            margin: 1rem auto;
+            padding: 2rem 1rem;
+          }
+          .networks {
+            display: flex;
+            gap: .4rem;
+            padding: 1rem;
+            border-radius: .5rem;
+            border: solid 1px #dfdfdf;
+            margin-bottom: .2rem;
+          }
+          .password {
+            margin-top: 2rem;
+          }
+          .password p {
+            margin: .5rem 0;
+          }
+          .password input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: .5rem;
+            border: solid 1px #dfdfdf;
+          }
+          button {
+            margin: 2rem 0;
+            width: 100%;
+            padding: 1rem;
+            border-radius: .5rem;
+            border: none;
+          }
+        </style>
       </head>
       <body>
         <h1>Select Wi-Fi Network</h1>
@@ -130,14 +165,15 @@ def handle_root(client):
   while len(ssids):
     ssid = ssids.pop(0)
     client.sendall("""\
-            <div style="background: pink; padding: 1rem .5rem;">
-              <input type="radio" name="ssid" value="{0}" />
-              <label>{0}</label>
-            </div>
+          <div class="networks">
+            <input type="radio" name="ssid" value="{0}" />{0}
+          </div>
     """.format(ssid))
   client.sendall("""\
-          <p>Password:</p>
-          <input name="password" type="password" />
+          <div class="password">
+            <p>Password:</p>
+            <input name="password" type="text"/>
+          </div>
           <button type="submit" style="display: block;">Submit</button>
         </form>
       </body>
@@ -167,15 +203,9 @@ def handle_configure(client, request):
   if do_connect(ssid, password):
     response = """\
       <html>
-        <center>
-          <br><br>
-          <h1 style="color: #5e9ca0; text-align: center;">
-            <span style="color: #ff0000;">
-              ESP successfully connected to WiFi network %(ssid)s.
-            </span>
-          </h1>
-          <br><br>
-        </center>
+        <h1>    
+          Connected to WiFi network %(ssid)s.
+        </h1>
       </html>
     """ % dict(ssid=ssid)
     send_response(client, response)
@@ -191,18 +221,11 @@ def handle_configure(client, request):
     return True
   else:
     response = """\
-      <html>
-        <center>
-          <h1 style="color: #5e9ca0; text-align: center;">
-            <span style="color: #ff0000;">
-              ESP could not connect to WiFi network %(ssid)s.
-            </span>
-          </h1>
-          <br><br>
-          <form>
-            <input type="button" value="Go back!" onclick="history.back()"></input>
-          </form>
-        </center>
+      <html>  
+        <h1>Couldn’t connect to the WiFi network %(ssid)s.</h1>
+        <form>
+          <input type="button" value="Go back!" onclick="history.back()"></input>
+        </form>
       </html>
     """ % dict(ssid=ssid)
     send_response(client, response)

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <style>
       body {
         font-family: Arial, Helvetica, sans-serif;
@@ -15,9 +15,6 @@
         border-radius: .5rem;
         border: solid 1px #dfdfdf;
         margin-bottom: .2rem;
-      }
-      input[type='radio'] { 
-        transform: scale(1.2); 
       }
       .password {
         margin-top: 2rem;
@@ -48,8 +45,7 @@
     ssid = ssids.pop(0)
     client.sendall("""\ -->
       <div class="networks">
-        <input type="radio" name="ssid" value="{0}" />
-        <span>{0}</span>
+        <input type="radio" name="ssid" value="{0}" />{0}
       </div>
     <!-- """.format(ssid))
     client.sendall("""\ -->
