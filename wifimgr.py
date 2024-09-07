@@ -14,7 +14,6 @@ wlan_sta = network.WLAN(network.STA_IF)
 
 server_socket = None
 
-
 def get_connection():
   """return a working WLAN(STA_IF) instance or None"""
 
@@ -121,58 +120,27 @@ def handle_root(client):
   send_header(client)
   client.sendall("""\
     <html>
-      <h1 style="color: #5e9ca0; text-align: center;">
-        <span style="color: #ff0000;">
-          Wi-Fi Client Setup
-        </span>
-      </h1>
-      <form action="configure" method="post">
-        <table style="margin-left: auto; margin-right: auto;">
-          <tbody>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body>
+        <h1>Select Wi-Fi Network</h1>
+        <form action="configure" method="post">
   """)
   while len(ssids):
     ssid = ssids.pop(0)
     client.sendall("""\
-            <tr>
-              <td colspan="2">
-                <input type="radio" name="ssid" value="{0}" />{0}
-              </td>
-            </tr>
+            <div style="background: pink; padding: 1rem .5rem;">
+              <input type="radio" name="ssid" value="{0}" />
+              <label>{0}</label>
+            </div>
     """.format(ssid))
   client.sendall("""\
-            <tr>
-              <td>Password:</td>
-              <td><input name="password" type="password" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="text-align: center;">
-          <input type="submit" value="Submit" />
-        </p>
-      </form>
-      <p>&nbsp;</p>
-      <hr />
-      <h5>
-        <span style="color: #ff0000;">
-          Your ssid and password information will be saved into the
-          "%(filename)s" file in your ESP module for future usage.
-          Be careful about security!
-        </span>
-      </h5>
-      <hr />
-      <h2 style="color: #2e6c80;">
-        Some useful infos:
-      </h2>
-      <ul>
-        <li>
-          Original code from <a href="https://github.com/cpopp/MicroPythonSamples"
-            target="_blank" rel="noopener">cpopp/MicroPythonSamples</a>.
-        </li>
-        <li>
-          This code available at <a href="https://github.com/tayfunulu/WiFiManager"
-            target="_blank" rel="noopener">tayfunulu/WiFiManager</a>.
-        </li>
-      </ul>
+          <p>Password:</p>
+          <input name="password" type="password" />
+          <button type="submit" style="display: block;">Submit</button>
+        </form>
+      </body>
     </html>
   """ % dict(filename=NETWORK_PROFILES))
   client.close()
