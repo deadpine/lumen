@@ -1,2 +1,2 @@
 # lumen
-Exploring the connection between electronics and humans
+Exploring the connection between light and humans
