@@ -1,9 +1,8 @@
-# lumens
-Exploring the connection between light and humans
+# Lumens: Exploring the connection between light and humans
 
 ---
 
-# Project Summary:
+### Project Summary:
 
 Two Raspberry Pi Pico W devices connected to the internet (one in each house).
 
