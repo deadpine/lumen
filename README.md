@@ -16,7 +16,6 @@ Exploring the connection between light and humans
   - SparkFun Sound Detector
   - Velleman Microphone sound sensor (WPSE309)
 - [ ] Botón
-Prototipado
 - [ ] Protoboard
 - [ ] Pines
 - [ ] Cables dupont
