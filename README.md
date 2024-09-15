@@ -4,7 +4,7 @@ Exploring the connection between light and humans
 ---
 
 ### Materiales
-(Comprar por duplicado)
+Comprar por duplicado
 
 - [ ] Raspberry Pi pico W
 - [ ] Cable mini USB
