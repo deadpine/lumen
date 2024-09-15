@@ -1,0 +1,66 @@
+# Explicación del código: Este script está diseñado para la **Raspberry Pi Pico** y usa un **sensor de sonido**, un **boton, y un **LED RGB**. El código detecta el nivel del sonido utilizando un **ADC** (convertidor analógico-digital) y cambia el color del LED RGB en función de la intensidad del sonido. 
+# Componentes clave:
+# 1. **Botón**: Conectado al pin **GP21**; inicia la detección del sonido cuando es presionado.
+# 2. **Sensor de sonido**: Conectado al pin analogico **GP28**; mide la intensidad del sonido en valores de 0 a 65535.
+# 3. **LED RGB**: Conectado a los pines **GP14 (rojo)**, **GP15 (verde)** y **GP16 (azul)**; cambia de color dependiendo del nivel de sonido:
+#   - **Rojo**: Sonido bajo.
+#   - **Verde**: Sonido medio.
+#   - **Azul**: Sonido alto.
+# 4. **LED integrado**: En el pin **GP25**, se enciende al iniciar el código para indicar que está en funcionamiento.
+
+# Flujo del código:
+# - Cuando se presiona el botón, el sensor de sonido comienza a escuchar.
+# - El LED RGB cambia de color según la intensidad del sonido detectado.
+# - El LED se apaga cuando no hay sonido o cuando el botón no está presionado.
+
+# Use componentes de **sunfounder** y una arduino uno para alimentar con 5V el sensor de sonido
+-------
+
+import machine
+import time
+
+# Configuración de los pines
+button = machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_DOWN)  # Botón conectado a GP21
+sound_sensor = machine.ADC(28)  # Sensor de sonido conectado a GP28 (ADC)
+led_r = machine.Pin(14, machine.Pin.OUT)  # LED Rojo en GP14
+led_g = machine.Pin(15, machine.Pin.OUT)  # LED Verde en GP15
+led_b = machine.Pin(16, machine.Pin.OUT)  # LED Azul en GP16
+pico_led = machine.Pin(25, machine.Pin.OUT)  # LED integrado en GP25
+
+# Encender el LED de la Raspberry Pi Pico para indicar que el código está corriendo
+pico_led.value(1)
+
+# Función para cambiar el color del LED RGB
+def set_rgb_color(r, g, b):
+    led_r.value(r)
+    led_g.value(g)
+    led_b.value(b)
+
+# Función para detectar sonido y cambiar el color del LED
+def detect_sound():
+    print("Detectando sonido...")
+    # Leer el valor del sensor de sonido (0-65535)
+    sound_value = sound_sensor.read_u16()
+    
+    # Cambiar el color del LED basado en el nivel del sonido
+    if sound_value < 20000:  # Sonido bajo
+        set_rgb_color(1, 0, 0)  # Rojo
+    elif 20000 <= sound_value < 40000:  # Sonido medio
+        set_rgb_color(0, 1, 0)  # Verde
+    else:  # Sonido alto
+        set_rgb_color(0, 0, 1)  # Azul
+    
+    print("Valor del sonido:", sound_value)
+
+# Bucle principal
+while True:
+    # Esperar a que se presione el botón
+    if button.value() == 1:
+        print("Botón presionado. Escuchando sonido...")
+        time.sleep(0.3)  # Debounce para el botón
+        detect_sound()  # Detectar el sonido y cambiar el color del LED
+    else:
+        # Apagar el LED cuando no se detecta sonido
+        set_rgb_color(0, 0, 0)
+
+    time.sleep(0.1)  # Pequeña espera para evitar consumir demasiados recursos
