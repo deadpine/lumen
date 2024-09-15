@@ -1,8 +1,6 @@
 # lumens
 Exploring the connection between light and humans
 
-Here's a refined and translated version:
-
 ---
 
 # Project Summary:
