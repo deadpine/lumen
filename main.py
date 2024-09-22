@@ -24,6 +24,9 @@ pico_led.value(1)
 # Variable para controlar el estado del sensor de sonido (activado o desactivado)
 sound_detection_enabled = False  # Comienza desactivado
 
+# Variable para almacenar el último estado del botón
+last_button_state = 0  # Estado anterior del botón
+
 # Función para cambiar el color del LED RGB usando valores entre 0 y 255
 def set_rgb_color(r, g, b):
     print(f"Configurando color LED RGB: Rojo={r}, Verde={g}, Azul={b}")
@@ -41,24 +44,25 @@ def detect_sound():
     sound_value = sound_sensor.read_u16()
     print(f"Valor del sensor de sonido: {sound_value}")  # Debugging
     
-    # Cambiar el color del LED basado en el nivel del sonido
-    if sound_value > 10000:  # Ajuste para detectar sonido
-        if sound_value < 20000:  # Sonido bajo
-            set_rgb_color(255, 0, 0)  # Rojo brillante
-        elif 20000 <= sound_value < 40000:  # Sonido medio
-            set_rgb_color(0, 255, 0)  # Verde brillante
-        else:  # Sonido alto
-            set_rgb_color(0, 0, 255)  # Azul brillante
-    else:
-        # Apagar el LED si no se detecta sonido
-        set_rgb_color(0, 0, 0)
+    # Normalizamos el valor a un rango 0-255
+    sound_level = min(255, int(sound_value / 256))  # Convertir 0-65535 a 0-255
     
-    print("Valor del sonido procesado:", sound_value)
+    # Más azul (grave) en valores bajos, más amarillo (rojo+verde) en valores altos
+    r = min(255, sound_level * 2)  # Rojo aumenta con el nivel de sonido
+    g = min(255, sound_level)      # Verde aumenta un poco más lento
+    b = 255 - sound_level          # Azul disminuye a medida que el sonido es más agudo
+    
+    set_rgb_color(r, g, b)
 
-# Función para manejar el botón con debounce (evitar lecturas incorrectas por rebote)
+# Función para manejar el botón con debounce y mostrar el estado del botón
 def button_pressed():
-    if button.value() == 1:  # Si el botón está presionado
-        time.sleep(0.05)  # Delay para debounce (50 ms)
+    global last_button_state
+    # Leer el estado actual del botón
+    button_state = button.value()
+    print(f"Estado del botón: {button_state}")  # Debugging del botón
+
+    if button_state == 1 and last_button_state == 0:  # Botón recién presionado
+        time.sleep(0.05)  # Delay para debounce
         if button.value() == 1:  # Verificar de nuevo después del debounce
             print("Botón presionado!")
             return True
