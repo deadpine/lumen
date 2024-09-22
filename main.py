@@ -65,7 +65,10 @@ def button_pressed():
         time.sleep(0.05)  # Delay para debounce
         if button.value() == 1:  # Verificar de nuevo después del debounce
             print("Botón presionado!")
+            last_button_state = 1  # Actualizar el último estado
             return True
+    elif button_state == 0:
+        last_button_state = 0  # Actualizar el último estado
     return False
 
 # Bucle principal
@@ -80,7 +83,7 @@ while True:
     if sound_detection_enabled:
         detect_sound()  # Detectar el sonido y cambiar el color del LED si está activado
     else:
-        set_rgb_color(0, 0, 0)  # Apagar el LED RGB si la detección está desactivada
+        set_rgb_color(255, 255, 255)  # Apagar el LED RGB si la detección está desactivada
 
     # Espera pequeña para evitar consumir demasiados recursos
     time.sleep(0.1)
