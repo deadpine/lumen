@@ -8,13 +8,22 @@ b_pin = machine.Pin(8, machine.Pin.OUT)
 
 # Turn off the LED by setting all pins to high
 r_pin.value(1)   # Red off
-g_pin.value(1) # Green off
-b_pin.value(1)  # Blue off
+g_pin.value(1)   # Green off
+b_pin.value(1)   # Blue off
 
 print("RGB LED is off.")
 
+# Initialize the microphone on GP28
+mic_pin = machine.ADC(28)  # GP28 is an analog pin
+
 # Initialize the button on GP9
 button_pin = machine.Pin(9, machine.Pin.IN, machine.Pin.PULL_UP)
+
+# Function to read the microphone value
+def read_mic():
+    mic_value = mic_pin.read_u16()  # Read the analog value (0-65535)
+    print("Microphone value:", mic_value)
+    return mic_value
 
 # Function to check button state
 def check_button():
@@ -22,16 +31,14 @@ def check_button():
         print("Button pressed!")
         return True
     else:
-        print("Button not pressed.")
         return False
 
-# Continuously read the microphone and button values
+# Continuously check the button and read the microphone when the button is pressed
 while True:
-    button_pressed = check_button()
+    if check_button():
+        mic_value = read_mic()  # Only read the microphone when the button is pressed
+        # You can add logic here to process the mic value, control LEDs, etc.
+    else:
+        print("Button not pressed. No microphone recording.")
     
-    # Add your own logic for when the button is pressed or not
-    if button_pressed:
-        # You can add logic here to turn on/off the LED, etc.
-        pass
-    # Delay in logs
-    time.sleep(1)
+    time.sleep(0.5)  # Short delay to avoid overwhelming the processor
