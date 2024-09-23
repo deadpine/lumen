@@ -25,7 +25,7 @@ pico_led.value(1)
 sound_detection_enabled = False  # Comienza desactivado
 
 # Variable para almacenar el último estado del botón
-last_button_state = 1  # Estado anterior del botón
+last_button_state = 0  # Estado anterior del botón
 
 # Variable para rastrear si los LEDs están apagados
 leds_off = True  # Inicialmente, los LEDs están apagados
@@ -56,16 +56,19 @@ def detect_sound():
     sound_value = sound_sensor.read_u16()
     print(f"Valor del sensor de sonido: {sound_value}")  # Debugging
     
-    # Usar el valor de sonido directamente para el brillo del LED rojo
-    set_red_brightness(sound_value)
-    
+    # Solo ajustar el brillo si el valor está dentro del rango deseado
+    if sound_value >= 20000:
+        brightness = sound_value  # Mantener el brillo en el valor del sonido
+        set_red_brightness(brightness)  # Ajustar el brillo del LED rojo
+        if leds_off:  # Solo imprimir si los LEDs estaban apagados
+            print("Encendiendo LED RGB")
+        leds_off = False  # Actualiza el estado de los LEDs a encendido
+    else:
+        turn_off_rgb()  # Apagar los LEDs si el sonido es demasiado bajo
+
     # Asegurarse de que los otros LEDs estén apagados
     led_g.duty_u16(0)  # Asegurarse de que el LED verde esté apagado
     led_b.duty_u16(0)  # Asegurarse de que el LED azul esté apagado
-
-    if leds_off:  # Solo imprimir si los LEDs estaban apagados
-        print("Encendiendo LED RGB")
-    leds_off = False  # Actualiza el estado de los LEDs a encendido
 
 # Función para manejar el botón con debounce y mostrar el estado del botón
 def button_pressed():
@@ -73,7 +76,7 @@ def button_pressed():
     # Leer el estado actual del botón
     button_state = button.value()
     # Debugging del botón
-    # print(f"Estado del botón: {button_state}")  
+    # print(f"Estado del botón: {button_state}") 
 
     if button_state == 1 and last_button_state == 0:  # Botón recién presionado
         time.sleep(0.05)  # Delay para debounce
@@ -101,4 +104,3 @@ while True:
 
     # Espera pequeña para evitar consumir demasiados recursos
     time.sleep(0.1)
-
