@@ -26,37 +26,57 @@ def read_mic():
 def check_button():
     return button_pin.value() == 0
 
-# Function to map the microphone values between 50000 and 65535 to LED brightness (inverted)
-# Now, with more pronounced scaling for brightness control
+# Function to map the microphone values between 51000 and 65535 to LED brightness (inverted)
 def map_volume_to_brightness(volume):
-    # Ignore values below 50000
-    if volume < 50000:
-        volume = 50000
+    # Ignore values below 51000
+    if volume < 51000:
+        volume = 51000
     # More aggressive scaling: compress volume range more drastically
-    scaled_volume = (volume - 50000) ** 1.5  # Exponential to emphasize differences
-    max_scaled_volume = (65535 - 50000) ** 1.5  # Maximum possible value for normalization
+    scaled_volume = (volume - 51000) ** 1  # Exponential to emphasize differences
+    max_scaled_volume = (65535 - 51000) ** 1  # Maximum possible value for normalization
     brightness = 65535 - int(scaled_volume * (65535 / max_scaled_volume))  # Inverted brightness
     return brightness
+
+# Function to fade brightness to the target value
+def fade_to_target(target_brightness, step=5000):  # Reduced step size for quicker transition
+    global current_brightness
+    # Incrementally adjust brightness towards the target
+    while current_brightness != target_brightness:
+        if current_brightness < target_brightness:
+            current_brightness += step
+            if current_brightness > target_brightness:
+                current_brightness = target_brightness
+        else:
+            current_brightness -= step
+            if current_brightness < target_brightness:
+                current_brightness = target_brightness
+        
+        # Set the RGB LED brightness
+        r_pin.duty_u16(current_brightness)  # Inverted brightness of the red LED
+        g_pin.duty_u16(65535)  # Adjust the green similarly
+        b_pin.duty_u16(current_brightness)  # Adjust the blue similarly
+        
+        time.sleep(0.02)  # Short delay for faster fading effect
+
+# Initialize current brightness
+current_brightness = 65535  # Start with LED off
 
 # Continuously check the button and read the microphone when the button is pressed
 while True:
     if check_button():
         mic_value = read_mic()  # Only read the microphone when the button is pressed
-        brightness = map_volume_to_brightness(mic_value)
-
-        # Set the RGB LED brightness (using red for example; adjust others as needed)
-        r_pin.duty_u16(brightness)  # Inverted brightness of the red LED
-        g_pin.duty_u16(65535)  # Adjust the green similarly
-        b_pin.duty_u16(brightness)  # Adjust the blue similarly
-
-        print(f"Button pressed! Microphone value: {mic_value}, LED brightness: {brightness}")
+        target_brightness = map_volume_to_brightness(mic_value)
+        
+        # Fade to the new target brightness
+        fade_to_target(target_brightness)
+        
+        print(f"Button pressed! Microphone value: {mic_value}, LED brightness: {target_brightness}")
     
     else:
         # Turn off the LED when the button is not pressed (inverted logic)
-        r_pin.duty_u16(65535)   # Turn off red (inverted off)
-        g_pin.duty_u16(65535)   # Turn off green
-        b_pin.duty_u16(65535)   # Turn off blue
+        fade_to_target(65535)   # Fade to off (inverted off)
 
         print("Button not pressed. No microphone listening.")
 
-    time.sleep(0.1)  # Delay of 0.5 seconds between checks
+    time.sleep(0.1)  # Delay between checks
+
