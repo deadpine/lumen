@@ -26,10 +26,16 @@ def read_mic():
 def check_button():
     return button_pin.value() == 0
 
-# Function to map microphone values to inverted PWM brightness (0 -> 65535 becomes 65535 -> 0)
+# Function to map the microphone values between 20000 and 65535 to LED brightness (inverted)
+# Now, with more pronounced scaling for brightness control
 def map_volume_to_brightness(volume):
-    # Invert the mic value for the LED (0 -> 65535 becomes 65535 -> 0)
-    brightness = 65535 - min(max(volume, 0), 65535)  # Ensure it's within bounds and invert
+    # Ignore values below 20000
+    if volume < 20000:
+        volume = 20000
+    # More aggressive scaling: compress volume range more drastically
+    scaled_volume = (volume - 20000) ** 2  # Exponential to emphasize differences
+    max_scaled_volume = (65535 - 20000) ** 2  # Maximum possible value for normalization
+    brightness = 65535 - int(scaled_volume * (65535 / max_scaled_volume))  # Inverted brightness
     return brightness
 
 # Continuously check the button and read the microphone when the button is pressed
@@ -40,7 +46,7 @@ while True:
 
         # Set the RGB LED brightness (using red for example; adjust others as needed)
         r_pin.duty_u16(brightness)  # Inverted brightness of the red LED
-        g_pin.duty_u16(brightness)  # Adjust the green similarly
+        g_pin.duty_u16(65535)  # Adjust the green similarly
         b_pin.duty_u16(brightness)  # Adjust the blue similarly
 
         print(f"Button pressed! Microphone value: {mic_value}, LED brightness: {brightness}")
@@ -53,4 +59,4 @@ while True:
 
         print("Button not pressed. No microphone listening.")
 
-    time.sleep(0.1)  # Short delay to avoid overwhelming the processor
+    time.sleep(0.1)  # Delay of 0.5 seconds between checks
