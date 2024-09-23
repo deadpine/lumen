@@ -26,15 +26,15 @@ def read_mic():
 def check_button():
     return button_pin.value() == 0
 
-# Function to map the microphone values between 20000 and 65535 to LED brightness (inverted)
+# Function to map the microphone values between 50000 and 65535 to LED brightness (inverted)
 # Now, with more pronounced scaling for brightness control
 def map_volume_to_brightness(volume):
-    # Ignore values below 20000
-    if volume < 20000:
-        volume = 20000
+    # Ignore values below 50000
+    if volume < 50000:
+        volume = 50000
     # More aggressive scaling: compress volume range more drastically
-    scaled_volume = (volume - 20000) ** 2  # Exponential to emphasize differences
-    max_scaled_volume = (65535 - 20000) ** 2  # Maximum possible value for normalization
+    scaled_volume = (volume - 50000) ** 1.5  # Exponential to emphasize differences
+    max_scaled_volume = (65535 - 50000) ** 1.5  # Maximum possible value for normalization
     brightness = 65535 - int(scaled_volume * (65535 / max_scaled_volume))  # Inverted brightness
     return brightness
 
